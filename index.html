@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kart Masası</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <button id="btn-logout" onclick="cikisYap()">Masadan ayrıl 🚪</button>
+
+    <div id="secim-ekrani">
+        <div class="giris-kapsayici">
+            <div class="giris-sol">
+                <h2 style="margin-bottom: 20px;">Masaya Hoş Geldiniz</h2>
+                <p style="color: #bdc3c7; font-size: 14px; margin-bottom: 25px; margin-top: 0;">
+                    İsminizi yazıp oturmak istediğiniz sandalyeyi seçin.<br>
+                    Tüm oyuncular oturduğunda oyun başlayacak.<br>
+                    Keyifli oyunlar dileriz! 🃏
+                </p>
+                <input type="text" id="oyuncu-isim-input" placeholder="İsminizi Yazın..." maxlength="12">
+                
+                <div class="oyun-modu-container">
+                    <label for="oyun-modu-select">Oyun Tipi:</label>
+                    <select id="oyun-modu-select" onchange="oyunModuDegistir(this.value)">
+                        <option value="serbest">🃏 Serbest Oyun</option>
+                        <option value="king">👑 King (Yakında)</option>
+                    </select>
+                </div>
+
+                <div class="koltuk-btn-grup">
+                    <button id="btn-sec-kuzey" class="koltuk-btn koltuk-bos" onclick="koltukSec(2)">Kuzey</button>
+                    <button id="btn-sec-bati" class="koltuk-btn koltuk-bos" onclick="koltukSec(1)">Batı</button>
+                    <button id="btn-sec-dogu" class="koltuk-btn koltuk-bos" onclick="koltukSec(3)">Doğu</button>
+                    <button id="btn-sec-guney" class="koltuk-btn koltuk-bos" onclick="koltukSec(0)">Güney</button>
+                </div>
+            </div>
+
+            <div class="giris-sag">
+                <h3>📖 Oyun Rehberi</h3>
+                <div class="rehber-item">
+                    <strong>🃏 Serbest Mod Nedir?</strong>
+                    <p>Kural yok! İstediğiniz kart oyununu oynayabilirsiniz. Kartları istediğiniz gibi atabilir, geri alabilir ve masayı yönetebilirsiniz. İstenen oyuncu oyuna başlar ve kartlar saat yönünde atılmaya devam eder. Oyun sonunda oyuncuların topladığı kartlar gösterilir.</p>
+                </div>
+                <hr style="border-color: rgba(255,255,255,0.1);">
+                <h4>Butonların Anlamları</h4>
+                <div class="rehber-buton-satir"><span class="ikon-kutusu mavi">✋ Ben Başlıyorum</span><span>Her el ilk kartı atacak oyuncuyu belirler.</span></div>
+                <div class="rehber-buton-satir"><span class="ikon-kutusu gri">Vazgeç ✖</span><span>"Ben Başlıyorum" isteğinizi iptal eder.</span></div>
+                <div class="rehber-buton-satir"><span class="ikon-kutusu kirmizi-canli">Geri Al ↩</span><span>Son attığınız kartı elinize geri alırsınız.</span></div>
+                <div class="rehber-buton-satir"><span class="ikon-kutusu turuncu">Ortayı Topla</span><span>Yerdeki kartları toplar ve hanenize yazar.</span></div>
+                <div class="rehber-buton-satir"><span class="ikon-kutusu kirmizi">Ortayı Geri Koy ↺</span><span>Ortayı yanlışlıkla topladıysanız kartları geri koyar.</span></div>
+                <div class="rehber-buton-satir"><span class="ikon-kutusu yesil">Yeni El Dağıt ↻</span><span>Oyun sonunda eli bitirir ve yeniden dağıtır.</span></div>
+                <div class="rehber-buton-satir"><span class="ikon-kutusu bordo">Masadan ayrıl 🚪</span><span>Masadan kalkmanızı sağlar (Mevcut el sıfırlanır).</span></div>
+                <div style="margin-top: 20px; font-size: 12px; color: #bdc3c7; text-align: center;">v4.5 - Made with fun🥳 by blokdokuz, 2026</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="masa-cerceve">
+        <div style="position: relative; width: 100%; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+             <div id="kuzey-isim" class="isim-etiketi">KUZEY</div>
+             <div id="kuzey-eli" class="el-yatay"></div>
+             <div id="kuzey-toplanan" class="toplanan-alan yatay"></div>
+        </div>
+
+        <div class="masa-orta">
+            <div style="position: relative; display: flex; flex-direction: row; align-items: center; height: 100%;">
+                <div id="bati-isim" class="isim-etiketi">BATI</div>
+                <div id="bati-eli" class="el-dikey"></div>
+                <div id="bati-toplanan" class="toplanan-alan dikey"></div>
+            </div>
+            
+            <div id="oyun-alani">
+                <div class="yerdeki-yazi">Oyuncular Bekleniyor...</div>
+                <button id="btn-dagit" onclick="yeniElDagit()" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 30px; font-size: 16px; font-weight: bold; cursor: pointer; background: #27ae60; border: 2px solid white; color: white; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5); z-index: 20;">YENİ EL DAĞIT ↻</button>
+            </div>
+
+            <div style="position: relative; display: flex; flex-direction: row; align-items: center; height: 100%;">
+                <div id="dogu-toplanan" class="toplanan-alan dikey"></div>
+                <div id="dogu-eli" class="el-dikey"></div>
+                <div id="dogu-isim" class="isim-etiketi">DOĞU</div>
+            </div>
+        </div>
+
+        <div style="position: relative; width: 100%; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div id="guney-toplanan" class="toplanan-alan yatay"></div>
+            <div id="guney-eli" class="el-yatay"></div>
+            <div id="guney-isim" class="isim-etiketi" style="display: none;">BEN</div>
+            
+            <div style="position: absolute; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 100;">
+                <button id="btn-ilk-sira" onclick="ilkSiraIste()" style="display: none; padding: 10px 15px; font-size: 14px; cursor: pointer; background: #3498db; border: none; color: white; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); font-weight: bold;">✋ Ben Başlıyorum</button>
+                <button id="btn-ilk-sira-iptal" onclick="ilkSiraIptal()" style="display: none; padding: 10px 15px; font-size: 14px; cursor: pointer; background: #7f8c8d; border: none; color: white; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">Vazgeç ✖</button>
+                <button id="btn-geri" onclick="kartGeriAl()" style="display: none; padding: 8px 15px; font-size: 12px; cursor: pointer; background: #e74c3c; border: none; color: white; border-radius: 5px;">Geri Al ↩</button>
+                <button id="btn-ortayi-geri" onclick="ortayiGeriKoy()" style="display: none; padding: 10px 15px; font-size: 14px; cursor: pointer; background: #d35400; border: none; color: white; border-radius: 5px; margin-bottom: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); font-weight: bold;">Ortayı Geri Koy ↺</button>
+                <button id="btn-topla" onclick="ortayiTopla()" style="padding: 10px 15px; font-size: 14px; cursor: pointer; background: #e67e22; border: none; color: white; border-radius: 5px;">Ortayı Topla</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-box" class="chat-container chat-minimized">
+        <div class="chat-header" onclick="chatBaslikTiklama()">
+            <span class="chat-icon-btn" style="display:none;">💬</span>
+            <span>💬 Sohbet</span>
+            <div class="chat-header-buttons">
+                <button id="chat-minimize-btn" onclick="chatMinimize(event)" title="Simge Durumuna Küçült">_</button>
+                <button id="chat-toggle-btn" onclick="chatToggle(event)" title="Büyüt/Küçült">⤢</button>
+            </div>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <div class="chat-welcome">Sohbete hoş geldiniz!</div>
+        </div>
+        
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Bir şeyler yaz..." maxlength="100">
+            <button onclick="chatMesajGonder()">➤</button>
+        </div>
+    </div>
+
+    <div id="game-result-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-actions">
+                <button id="btn-seat-select" class="end-btn cikis-modal-btn">Masadan Ayrıl</button>
+                <button id="btn-redeal" class="end-btn deal-btn">Kartları Dağıt</button>
+            </div>
+            <h2 class="modal-title">Oyun Bitti - Toplanan Kartlar</h2>
+            <div id="collected-cards-container" class="collected-container"></div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
